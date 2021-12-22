@@ -3,18 +3,13 @@ package com.vandoc.plugins
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.gson.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import java.text.DateFormat
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
         gson {
-        }
-    }
-
-    routing {
-        get("/json/gson") {
-            call.respond(mapOf("hello" to "world"))
+            setDateFormat(DateFormat.LONG)
+            setPrettyPrinting()
         }
     }
 }
