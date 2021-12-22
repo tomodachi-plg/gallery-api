@@ -1,0 +1,5 @@
+# Project exclude paths
+/.gradle/
+build/
+.idea
+src/main/resources/service-account-file.json
