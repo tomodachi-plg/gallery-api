@@ -10,6 +10,7 @@ import io.ktor.server.netty.*
 fun main() {
     val port = System.getenv("PORT")?.toInt()
     embeddedServer(Netty, port = port ?: 8081) {
+        configureInjection()
         configureRouting()
         configureAuthentication()
         configureMonitoring()
