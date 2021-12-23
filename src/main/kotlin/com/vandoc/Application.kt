@@ -8,10 +8,9 @@ import io.ktor.server.netty.*
 import org.slf4j.LoggerFactory
 
 fun main() {
-    val port = System.getenv("PORT")?.toInt()
-
     (LoggerFactory.getILoggerFactory() as LoggerContext).getLogger("org.mongodb.driver").level = Level.ERROR
 
+    val port = System.getenv("PORT")?.toInt()
     embeddedServer(Netty, port = port ?: 8081) {
         configureInjection()
         configureRouting()

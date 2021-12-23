@@ -12,6 +12,7 @@ import io.ktor.routing.*
 import org.koin.ktor.ext.inject
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
+import org.mindrot.jbcrypt.BCrypt
 
 fun Routing.registerAuthenticationRoutes() {
     val database by inject<CoroutineDatabase>()
@@ -30,9 +31,9 @@ fun Routing.registerAuthenticationRoutes() {
         }
 
         val userCollection = database.getCollection<User>("users")
-        val userData = userCollection.findOne(User::email eq user.email, User::password eq user.password)
+        val userData = userCollection.findOne(User::email eq user.email)
 
-        if (userData == null) {
+        if (userData == null || !BCrypt.checkpw(user.password, userData.password)) {
             call.badRequest("user not found")
             return@post
         }
