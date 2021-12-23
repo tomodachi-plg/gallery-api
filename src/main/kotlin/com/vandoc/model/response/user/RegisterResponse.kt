@@ -2,7 +2,7 @@ package com.vandoc.model.response.user
 
 import com.google.gson.annotations.SerializedName
 
-data class LoginResponse(
+data class RegisterResponse(
     val user: UserResponse,
     val token: String
 ) {

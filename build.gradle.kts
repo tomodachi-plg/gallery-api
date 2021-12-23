@@ -3,6 +3,7 @@ val kotlinVersion: String by project
 val logbackVersion: String by project
 val koinVersion: String by project
 val mongoVersion: String by project
+val jbcryptVersion: String by project
 
 
 plugins {
@@ -21,6 +22,9 @@ repositories {
 }
 
 dependencies {
+    // Security
+    implementation("org.mindrot:jbcrypt:$jbcryptVersion")
+
     // Database
     implementation("org.litote.kmongo:kmongo-coroutine:$mongoVersion")
 
