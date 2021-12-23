@@ -9,9 +9,7 @@ data class LoginResponse(
     data class UserResponse(
         @SerializedName("fullname")
         val fullName: String,
-
         val username: String,
-
         val email: String
     )
 }
