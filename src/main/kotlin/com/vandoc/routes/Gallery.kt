@@ -120,14 +120,19 @@ fun Routing.registerGalleryRoutes() {
 
                 val galleryCollection = database.getCollection<Gallery>("posts")
 
-                val isSuccess = galleryCollection.updateMany(
+                val updateResult = galleryCollection.updateMany(
                     Gallery::galleryId eq galleryId,
                     SetTo(Gallery::caption, body.caption),
                     SetTo(Gallery::imagesUrl, body.imagesUrl)
-                ).modifiedCount > 0
+                )
 
-                if (!isSuccess) {
-                    call.badRequest("Failed to update gallery, gallery not found or field can't be same as previous!")
+                if (updateResult.matchedCount < 1) {
+                    call.badRequest("gallery not found!")
+                    return@put
+                }
+
+                if (updateResult.modifiedCount < 1) {
+                    call.badRequest("field can't be same as previous!")
                     return@put
                 }
 
