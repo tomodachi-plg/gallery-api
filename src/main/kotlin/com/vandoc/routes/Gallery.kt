@@ -2,8 +2,10 @@ package com.vandoc.routes
 
 import com.vandoc.model.db.Gallery
 import com.vandoc.model.request.gallery.CreateGalleryRequest
+import com.vandoc.model.request.gallery.UpdateGalleryRequest
 import com.vandoc.model.response.gallery.CreateGalleryResponse
 import com.vandoc.model.response.gallery.GetGalleryResponse
+import com.vandoc.model.response.gallery.UpdateGalleryResponse
 import com.vandoc.utils.badRequest
 import com.vandoc.utils.ok
 import com.vandoc.utils.serverError
@@ -90,7 +92,61 @@ fun Routing.registerGalleryRoutes() {
                 )
 
                 call.ok(
-                    message = "Post created successfully",
+                    message = "Gallery created successfully",
+                    data = galleryResponse
+                )
+
+            }
+
+            put("/{gallery_id}") {
+                val galleryId = call.parameters["gallery_id"]
+                val body = call.receive<UpdateGalleryRequest>()
+
+                if (galleryId.isNullOrBlank()) {
+                    call.badRequest("gallery_id can't be empty!")
+                    return@put
+                }
+
+                if (body.caption.isNullOrBlank()) {
+                    call.badRequest("caption can't be empty!")
+                    return@put
+                }
+
+                if (body.imagesUrl.isNullOrEmpty()) {
+                    call.badRequest("images_url required at least 1!")
+                    return@put
+                }
+
+                val galleryCollection = database.getCollection<Gallery>("posts")
+                val galleryDb = galleryCollection.findOne(Gallery::galleryId eq galleryId)
+
+                if (galleryDb == null) {
+                    call.badRequest("gallery not found!")
+                    return@put
+                }
+
+                val gallery = Gallery(
+                    _id = galleryDb._id,
+                    galleryId = galleryDb.galleryId,
+                    caption = body.caption,
+                    imagesUrl = body.imagesUrl
+                )
+
+                val isSuccess = galleryCollection.replaceOne(Gallery::_id eq gallery._id, gallery).modifiedCount > 0
+
+                if (!isSuccess) {
+                    call.serverError("Failed to update gallery, please try again later.")
+                    return@put
+                }
+
+                val galleryResponse = UpdateGalleryResponse(
+                    galleryId = gallery.galleryId,
+                    caption = gallery.caption,
+                    imagesUrl = gallery.imagesUrl
+                )
+
+                call.ok(
+                    message = "Success update gallery",
                     data = galleryResponse
                 )
 
