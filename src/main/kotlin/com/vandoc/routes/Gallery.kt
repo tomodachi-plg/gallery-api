@@ -41,8 +41,7 @@ fun Routing.registerGalleryRoutes() {
                 }
 
                 val galleryCollection = database.getCollection<Gallery>("posts")
-                val pageSize = galleryCollection.countDocuments().toInt()
-                val listGallery = galleryCollection.find().skip(pageSize * (page - 1)).limit(limit).toList()
+                val listGallery = galleryCollection.find().skip((page - 1) * limit).limit(limit).toList()
 
                 val galleryResponse = listGallery.map {
                     GetGalleryResponse(
