@@ -14,6 +14,7 @@ import io.ktor.auth.*
 import io.ktor.request.*
 import io.ktor.routing.*
 import org.koin.ktor.ext.inject
+import org.litote.kmongo.SetTo
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
@@ -118,31 +119,22 @@ fun Routing.registerGalleryRoutes() {
                 }
 
                 val galleryCollection = database.getCollection<Gallery>("posts")
-                val galleryDb = galleryCollection.findOne(Gallery::galleryId eq galleryId)
 
-                if (galleryDb == null) {
-                    call.badRequest("gallery not found!")
-                    return@put
-                }
-
-                val gallery = Gallery(
-                    _id = galleryDb._id,
-                    galleryId = galleryDb.galleryId,
-                    caption = body.caption,
-                    imagesUrl = body.imagesUrl
-                )
-
-                val isSuccess = galleryCollection.replaceOne(Gallery::_id eq gallery._id, gallery).modifiedCount > 0
+                val isSuccess = galleryCollection.updateMany(
+                    Gallery::galleryId eq galleryId,
+                    SetTo(Gallery::caption, body.caption),
+                    SetTo(Gallery::imagesUrl, body.imagesUrl)
+                ).modifiedCount > 0
 
                 if (!isSuccess) {
-                    call.serverError("Failed to update gallery, please try again later.")
+                    call.badRequest("Failed to update gallery, gallery not found or field can't be same as previous!")
                     return@put
                 }
 
                 val galleryResponse = UpdateGalleryResponse(
-                    galleryId = gallery.galleryId,
-                    caption = gallery.caption,
-                    imagesUrl = gallery.imagesUrl
+                    galleryId = galleryId,
+                    caption = body.caption,
+                    imagesUrl = body.imagesUrl
                 )
 
                 call.ok(
