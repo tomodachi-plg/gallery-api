@@ -4,6 +4,7 @@ import com.vandoc.model.db.Gallery
 import com.vandoc.model.request.gallery.CreateGalleryRequest
 import com.vandoc.model.request.gallery.UpdateGalleryRequest
 import com.vandoc.model.response.gallery.CreateGalleryResponse
+import com.vandoc.model.response.gallery.DeleteGalleryResponse
 import com.vandoc.model.response.gallery.GetGalleryResponse
 import com.vandoc.model.response.gallery.UpdateGalleryResponse
 import com.vandoc.utils.badRequest
@@ -146,6 +147,42 @@ fun Routing.registerGalleryRoutes() {
 
                 call.ok(
                     message = "Success update gallery",
+                    data = galleryResponse
+                )
+
+            }
+
+            delete("/{gallery_id}") {
+                val galleryId = call.parameters["gallery_id"]
+
+                if (galleryId.isNullOrBlank()) {
+                    call.badRequest("gallery_id can't be empty!")
+                    return@delete
+                }
+
+                val galleryCollection = database.getCollection<Gallery>("posts")
+                val gallery = galleryCollection.findOne(Gallery::galleryId eq galleryId)
+
+                if (gallery == null) {
+                    call.badRequest("gallery_id not found!")
+                    return@delete
+                }
+
+                val isSuccess = galleryCollection.deleteOne(Gallery::galleryId eq galleryId).deletedCount > 0
+
+                if (!isSuccess) {
+                    call.serverError("Failed to delete gallery, please try again later.")
+                    return@delete
+                }
+
+                val galleryResponse = DeleteGalleryResponse(
+                    galleryId = gallery.galleryId,
+                    caption = gallery.caption,
+                    imagesUrl = gallery.imagesUrl
+                )
+
+                call.ok(
+                    message = "Gallery deleted successfully",
                     data = galleryResponse
                 )
 
