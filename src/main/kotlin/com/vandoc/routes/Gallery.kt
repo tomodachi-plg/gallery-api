@@ -2,8 +2,10 @@ package com.vandoc.routes
 
 import com.vandoc.model.db.Gallery
 import com.vandoc.model.request.gallery.CreateGalleryRequest
+import com.vandoc.model.request.gallery.UpdateGalleryRequest
 import com.vandoc.model.response.gallery.CreateGalleryResponse
 import com.vandoc.model.response.gallery.GetGalleryResponse
+import com.vandoc.model.response.gallery.UpdateGalleryResponse
 import com.vandoc.utils.badRequest
 import com.vandoc.utils.ok
 import com.vandoc.utils.serverError
@@ -12,6 +14,7 @@ import io.ktor.auth.*
 import io.ktor.request.*
 import io.ktor.routing.*
 import org.koin.ktor.ext.inject
+import org.litote.kmongo.SetTo
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
 
@@ -90,7 +93,59 @@ fun Routing.registerGalleryRoutes() {
                 )
 
                 call.ok(
-                    message = "Post created successfully",
+                    message = "Gallery created successfully",
+                    data = galleryResponse
+                )
+
+            }
+
+            put("/{gallery_id}") {
+                val galleryId = call.parameters["gallery_id"]
+                val body = call.receive<UpdateGalleryRequest>()
+
+                if (galleryId.isNullOrBlank()) {
+                    call.badRequest("gallery_id can't be empty!")
+                    return@put
+                }
+
+                if (body.imagesUrl.isNullOrEmpty()) {
+                    call.badRequest("images_url required at least 1!")
+                    return@put
+                }
+
+                val galleryCollection = database.getCollection<Gallery>("posts")
+                val updateFields = mutableListOf<SetTo<Any>>(
+                    SetTo(Gallery::imagesUrl, body.imagesUrl)
+                )
+
+                if (!body.caption.isNullOrBlank()) {
+                    updateFields.add(SetTo(Gallery::caption, body.caption))
+                }
+
+                val updateResult = galleryCollection.updateMany(
+                    Gallery::galleryId eq galleryId,
+                    *updateFields.toTypedArray()
+                )
+
+                if (updateResult.matchedCount < 1) {
+                    call.badRequest("gallery not found!")
+                    return@put
+                }
+
+                if (updateResult.modifiedCount < 1) {
+                    call.badRequest("field can't be same as previous!")
+                    return@put
+                }
+
+                val updatedGallery = galleryCollection.findOne(Gallery::galleryId eq galleryId)
+                val galleryResponse = UpdateGalleryResponse(
+                    galleryId = updatedGallery?.galleryId.orEmpty(),
+                    caption = updatedGallery?.caption.orEmpty(),
+                    imagesUrl = updatedGallery?.imagesUrl.orEmpty()
+                )
+
+                call.ok(
+                    message = "Success update gallery",
                     data = galleryResponse
                 )
 
