@@ -108,22 +108,23 @@ fun Routing.registerGalleryRoutes() {
                     return@put
                 }
 
-                if (body.caption.isNullOrBlank()) {
-                    call.badRequest("caption can't be empty!")
-                    return@put
-                }
-
                 if (body.imagesUrl.isNullOrEmpty()) {
                     call.badRequest("images_url required at least 1!")
                     return@put
                 }
 
                 val galleryCollection = database.getCollection<Gallery>("posts")
+                val updateFields = mutableListOf<SetTo<Any>>(
+                    SetTo(Gallery::imagesUrl, body.imagesUrl)
+                )
+
+                if (!body.caption.isNullOrBlank()) {
+                    updateFields.add(SetTo(Gallery::caption, body.caption))
+                }
 
                 val updateResult = galleryCollection.updateMany(
                     Gallery::galleryId eq galleryId,
-                    SetTo(Gallery::caption, body.caption),
-                    SetTo(Gallery::imagesUrl, body.imagesUrl)
+                    *updateFields.toTypedArray()
                 )
 
                 if (updateResult.matchedCount < 1) {
@@ -136,10 +137,11 @@ fun Routing.registerGalleryRoutes() {
                     return@put
                 }
 
+                val updatedGallery = galleryCollection.findOne(Gallery::galleryId eq galleryId)
                 val galleryResponse = UpdateGalleryResponse(
-                    galleryId = galleryId,
-                    caption = body.caption,
-                    imagesUrl = body.imagesUrl
+                    galleryId = updatedGallery?.galleryId.orEmpty(),
+                    caption = updatedGallery?.caption.orEmpty(),
+                    imagesUrl = updatedGallery?.imagesUrl.orEmpty()
                 )
 
                 call.ok(
