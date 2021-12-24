@@ -1,10 +1,10 @@
 package com.vandoc.routes
 
 import com.vandoc.model.db.User
-import com.vandoc.model.request.LoginRequest
-import com.vandoc.model.request.RegisterRequest
-import com.vandoc.model.response.user.LoginResponse
-import com.vandoc.model.response.user.RegisterResponse
+import com.vandoc.model.request.authentication.LoginRequest
+import com.vandoc.model.request.authentication.RegisterRequest
+import com.vandoc.model.response.authentication.LoginResponse
+import com.vandoc.model.response.authentication.RegisterResponse
 import com.vandoc.utils.*
 import io.ktor.application.*
 import io.ktor.request.*

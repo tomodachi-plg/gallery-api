@@ -1,4 +1,4 @@
-package com.vandoc.model.request
+package com.vandoc.model.request.authentication
 
 import com.google.gson.annotations.SerializedName
 

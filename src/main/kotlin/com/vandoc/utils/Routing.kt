@@ -21,6 +21,13 @@ suspend fun ApplicationCall.badRequest(message: String) {
     )
 }
 
+suspend fun ApplicationCall.unauthorized(message: String) {
+    response.status(HttpStatusCode.Unauthorized)
+    respond(
+        Response(message, null)
+    )
+}
+
 // 5XX
 suspend fun ApplicationCall.serverError(message: String) {
     response.status(HttpStatusCode.InternalServerError)
