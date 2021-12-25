@@ -18,6 +18,8 @@ import org.koin.ktor.ext.inject
 import org.litote.kmongo.SetTo
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
+import org.litote.kmongo.regex
+import java.util.regex.Pattern
 
 fun Routing.registerGalleryRoutes() {
     val database by inject<CoroutineDatabase>()
@@ -29,6 +31,7 @@ fun Routing.registerGalleryRoutes() {
             get {
                 val page = (call.request.queryParameters["page"] ?: "1").toInt()
                 val limit = (call.request.queryParameters["limit"] ?: "25").toInt()
+                val caption = call.request.queryParameters["caption"]
 
                 if (page == 0) {
                     call.badRequest("Page can't less than 1!")
@@ -41,7 +44,18 @@ fun Routing.registerGalleryRoutes() {
                 }
 
                 val galleryCollection = database.getCollection<Gallery>("posts")
-                val listGallery = galleryCollection.find().skip((page - 1) * limit).limit(limit).toList()
+                val listGallery = galleryCollection
+                    .run {
+                        if (!caption.isNullOrBlank()) {
+                            val pattern = Pattern.compile(caption, Pattern.CASE_INSENSITIVE)
+                            find(Gallery::caption regex pattern)
+                        } else {
+                            find()
+                        }
+                    }
+                    .skip((page - 1) * limit)
+                    .limit(limit)
+                    .toList()
 
                 val galleryResponse = listGallery.map {
                     GetGalleryResponse(
