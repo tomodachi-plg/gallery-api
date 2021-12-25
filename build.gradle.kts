@@ -4,6 +4,7 @@ val logbackVersion: String by project
 val koinVersion: String by project
 val mongoVersion: String by project
 val jbcryptVersion: String by project
+val firebaseVersion: String by project
 
 
 plugins {
@@ -26,6 +27,7 @@ dependencies {
     implementation("org.mindrot:jbcrypt:$jbcryptVersion")
 
     // Database
+    implementation("com.google.firebase:firebase-admin:$firebaseVersion")
     implementation("org.litote.kmongo:kmongo-coroutine:$mongoVersion")
 
     // Injection
