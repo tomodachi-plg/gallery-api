@@ -15,6 +15,7 @@ fun main() {
         configureInjection()
         configureAuthentication()
         configureSerialization()
+        configureFirebase()
         configureRouting()
         configureMonitoring()
     }.start(wait = true)
