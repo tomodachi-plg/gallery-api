@@ -2,6 +2,7 @@ package com.vandoc.plugins
 
 import com.vandoc.routes.registerAuthenticationRoutes
 import com.vandoc.routes.registerGalleryRoutes
+import com.vandoc.routes.registerUploadRoutes
 import com.vandoc.utils.unauthorized
 import io.ktor.application.*
 import io.ktor.features.*
@@ -19,6 +20,7 @@ fun Application.configureRouting() {
     routing {
         registerAuthenticationRoutes()
         registerGalleryRoutes()
+        registerUploadRoutes()
     }
 
 }
