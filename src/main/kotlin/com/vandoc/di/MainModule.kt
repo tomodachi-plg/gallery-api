@@ -1,5 +1,7 @@
 package com.vandoc.di
 
+import com.google.firebase.cloud.StorageClient
+import com.vandoc.utils.UploadManager
 import org.koin.dsl.module
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
@@ -18,5 +20,9 @@ val mainModule = module {
         val client = KMongo.createClient(connectionString).coroutine
         client.getDatabase(dbname)
     }
+
+    single { StorageClient.getInstance().bucket() }
+
+    single { UploadManager(get()) }
 
 }

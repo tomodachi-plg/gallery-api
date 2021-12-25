@@ -85,7 +85,7 @@ fun Routing.registerAuthenticationRoutes() {
             return@post
         }
 
-        if (!isValidEmail(user.email)) {
+        if (!user.email.isValidEmail()) {
             call.badRequest("email is malformed!")
             return@post
         }
