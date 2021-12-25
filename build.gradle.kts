@@ -50,5 +50,16 @@ dependencies {
 }
 
 tasks.create("stage") {
+    dependsOn("generateFirebaseServiceFile")
     dependsOn("installDist")
+}
+
+tasks.create("generateFirebaseServiceFile") {
+    doLast {
+        println(System.getenv())
+        File(
+            projectDir,
+            System.getenv("SERVICE_PATH") + System.getenv("SERVICE_FILE_NAME")
+        ).writeText(System.getenv("SERVICE_FILE"))
+    }
 }
